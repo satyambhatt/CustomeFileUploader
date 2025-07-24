@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageId>CusotmFileUploader</PackageId>
+		<PackageVersion>1.0.0</PackageVersion>
+		<Authors>Satyam Bhatt</Authors>
+		<Company>Learning Techno Lab</Company>
+		<Description>A comprehensive file upload manager for .NET Core applications with support for single/multiple files, database storage, file system storage, and validation attributes.</Description>
+		<PackageTags>fileupload;netcore;aspnetcore;validation;database;filesystem</PackageTags>
+		<PackageReleaseNotes>
+			- Support for single and multiple file uploads
+			- Configurable storage options (FileSystem/Database)
+			- File validation with size and extension restrictions
+			- Compatible with any database provider through Entity Framework Core
+			- Easy integration with dependency injection
+		</PackageReleaseNotes>
+		<Copyright>Copyright © 2025</Copyright>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<!-- Package Generation -->
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+		<PackageProjectUrl>https://github.com/yourusername/FileUploadManager</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/yourusername/FileUploadManager</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="LICENSE" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
+	</ItemGroup>
+
+	<!-- Files to Include in Package -->
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+	<!-- Links and URLs -->
+	
+	<!-- Alternative: <PackageLicenseFile>LICENSE</PackageLicenseFile> -->
+
+
+	<PropertyGroup>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+	</ItemGroup>
+
+</Project>

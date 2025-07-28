@@ -14,7 +14,7 @@ namespace CusotmFileUploader.Models
         public string FileName { get; set; }
         public string ContentType { get; set; }
         public long FileSize { get; set; }
-        public byte[] FileData { get; set; }
+        public byte[]? FileData { get; set; }
         public string FilePath { get; set; }
         public DateTime UploadDate { get; set; }
         public DateTime? LastModified { get; set; }

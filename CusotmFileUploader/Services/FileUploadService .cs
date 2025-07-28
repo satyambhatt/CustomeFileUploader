@@ -22,6 +22,7 @@ namespace CusotmFileUploader.Services
             _logger = logger;
         }
 
+        /// <inheritdoc/>
         public async Task<FileDownloadResult> DownloadFileAsync(string fileId)
         {
             try
@@ -74,11 +75,12 @@ namespace CusotmFileUploader.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<FileUploadResult> UploadFileAsync(IFormFile file, FileUploadOptions options)
         {
             try
             {
-                if (file == null || file.Length > 0)
+                if (file == null || file.Length == 0)
                     return new FileUploadResult { Success = false, ErrorMessage = "No file selected" };
                 if (!ValidateFile(file, options)) return new FileUploadResult { Success = false, ErrorMessage = "File validation false" };
 
@@ -156,45 +158,65 @@ namespace CusotmFileUploader.Services
 
         private async Task SaveToDatabase(IFormFile file, string fileId, string fileName, FileUploadResult result)
         {
-            using var memorySteam = new MemoryStream();
-            await file.CopyToAsync(memorySteam);
-
-            var fileEntity = new FileEntity
+            try
             {
-                ContentType = file.ContentType,
-                FileData = memorySteam.ToArray(),
-                FileName = fileName,
-                FileSize = file.Length,
-                UploadDate = DateTime.Now,
-                Id = fileId
-            };
+                using var memorySteam = new MemoryStream();
+                await file.CopyToAsync(memorySteam);
 
-            _dbContext.Set<FileEntity>().Add(fileEntity);
-            await _dbContext.SaveChangesAsync();
+                var fileEntity = new FileEntity
+                {
+                    ContentType = file.ContentType,
+                    FileData = memorySteam.ToArray(),
+                    FileName = fileName,
+                    FileSize = file.Length,
+                    UploadDate = DateTime.Now,
+                    FilePath = "N/A", // No file path for database storage
+                    Id = fileId
+                };
+
+                _dbContext.Set<FileEntity>().Add(fileEntity);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving file to filesystem: {FileName}", fileName);
+                result.Success = false;
+                result.ErrorMessage = "An error occurred while saving the file.";
+            }
         }
 
         private async Task SaveToFileSystem(IFormFile file, string fileStorePath, string fileName, FileUploadResult result)
         {
-            if (!Directory.Exists(fileStorePath))
-                Directory.CreateDirectory(fileStorePath);
-            var filePath = Path.Combine(fileStorePath, fileName);
-            using var stream = new FileStream(filePath, FileMode.Create);
-            await file.CopyToAsync(stream);
-
-            var fileEntity = new FileEntity
+            try
             {
-                ContentType = file.ContentType,
-                FileName = fileName,
-                FilePath = filePath,
-                FileSize = file.Length,
-                UploadDate = DateTime.Now,
-                Id = result.FileId
-            };
 
-            _dbContext.Set<FileEntity>().Add(fileEntity);
-            await _dbContext.SaveChangesAsync();
+                if (!Directory.Exists(fileStorePath))
+                    Directory.CreateDirectory(fileStorePath);
+                var filePath = Path.Combine(fileStorePath, fileName);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
 
-            result.FilePath = filePath;
+                var fileEntity = new FileEntity
+                {
+                    ContentType = file.ContentType,
+                    FileName = fileName,
+                    FilePath = filePath,
+                    FileSize = file.Length,
+                    UploadDate = DateTime.Now,
+                    Id = result.FileId
+                };
+
+                _dbContext.Set<FileEntity>().Add(fileEntity);
+                await _dbContext.SaveChangesAsync();
+
+                result.FilePath = filePath;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving file to filesystem: {FileName}", fileName);
+                result.Success = false;
+                result.ErrorMessage = "An error occurred while saving the file.";
+            }
         }
 
         private bool ValidateFile(IFormFile file, FileUploadOptions options)
@@ -209,6 +231,6 @@ namespace CusotmFileUploader.Services
             }
             return true;
         }
-       
+
     }
 }
